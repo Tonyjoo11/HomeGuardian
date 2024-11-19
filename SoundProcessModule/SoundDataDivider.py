@@ -5,7 +5,7 @@ import time
 import os
 
 class SoundDataDivider:
-	def __init__(self, device_id, sample_rate=44100, duration=5, interval=10):
+	def __init__(self, device_id, sample_rate=44100,save_folder="record", duration=5, interval=10):
 		"""
 		SoundDataDivider 클래스 초기화.
 
@@ -22,35 +22,35 @@ class SoundDataDivider:
 		self.interval = interval
 		self.device_id = device_id#self.get_device_id_by_name(device_name)
 		self.recording = False
-
+		self.count = 0
+		self.save_folder = save_folder
 	
 	def record_audio(self,filename, duration, sample_rate,device):
-		print(f"Recording {duration} seconds on device {device}...")
+		print(f"sdd::Recording {duration} seconds on device {device}...")
 		audio_data = sd.rec(int(duration *sample_rate), samplerate=sample_rate,
 						channels=1, dtype='int16',device=device)
 		sd.wait()
 		write(filename,sample_rate, audio_data)
-		print(f"Saved {filename}")
+		print(f"sdd::Saved {filename}")
 
 
 	def start_recording(self):
 		self.recording=True
-		count = 0
 		try:
 			while self.recording:
-				filename = f"record/recording_{count}.wav"
+				filename = +f"/recording_{self.count}.wav"
 				self.record_audio(filename, self.duration, self.sample_rate, device=self.device_id)
-				count+=1
+				self.count+=1
 				time.sleep(max(0,self.interval-self.duration))
-
+			print("sdd::Recoding stopped")
 		except KeyboardInterrupt:
-			print("Recoding stopped")
+			print("sdd::Recoding stopped")
 	def stop_recording(self):
 			"""
 			상시 녹음을 중지.
 			"""
 			self.recording = False
-			print("Recording stopped.")
+			print("sdd::Recording stopped.")
 
 def main():
 	# 장치 ID, 녹음 속도, 녹음 시간, 간격 설정
