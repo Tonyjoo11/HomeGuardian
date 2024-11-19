@@ -3,3 +3,7 @@
 /dataset
 ./siamese_model.pth
 ./fire_alarm_autoencoder.pth
+/__pycache__
+/SoundProcessModule/__pycache__
+/record
+/spectrogram

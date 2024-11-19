@@ -16,33 +16,45 @@ class SoundDataDivider:
 		"""
 		
 		# self.device_name = device_name
-		print(sd.query_devices())
+		
 		self.sample_rate = sample_rate
 		self.duration = duration
 		self.interval = interval
 		self.device_id = device_id#self.get_device_id_by_name(device_name)
 		self.recording = False
-		self.count = 0
+		
 		self.save_folder = save_folder
 	
 	def record_audio(self,filename, duration, sample_rate,device):
+		# print("!")
 		print(f"sdd::Recording {duration} seconds on device {device}...")
 		audio_data = sd.rec(int(duration *sample_rate), samplerate=sample_rate,
 						channels=1, dtype='int16',device=device)
 		sd.wait()
 		write(filename,sample_rate, audio_data)
 		print(f"sdd::Saved {filename}")
-
+	def record_one(self,count):
+		filename = self.save_folder + f"/recording_{count}.wav"
+		
+		self.record_audio(filename, self.duration, self.sample_rate, device=self.device_id)
+		
+		time.sleep(max(0,self.interval-self.duration))
+		return f"recording_{count}.wav"
 
 	def start_recording(self):
 		self.recording=True
 		try:
+			
+			
 			while self.recording:
-				filename = +f"/recording_{self.count}.wav"
+				filename = self.save_folder + f"/recording_{self.count}.wav"
 				self.record_audio(filename, self.duration, self.sample_rate, device=self.device_id)
+				
 				self.count+=1
 				time.sleep(max(0,self.interval-self.duration))
 			print("sdd::Recoding stopped")
+		# except Exception as e:
+		# 	print(f"except occured:{e}")
 		except KeyboardInterrupt:
 			print("sdd::Recoding stopped")
 	def stop_recording(self):
@@ -51,7 +63,14 @@ class SoundDataDivider:
 			"""
 			self.recording = False
 			print("sdd::Recording stopped.")
-
+def record_audio(filename, duration, sample_rate,device):
+	# print("!")
+	print(f"sdd::Recording {duration} seconds on device {device}...")
+	audio_data = sd.rec(int(duration *sample_rate), samplerate=sample_rate,
+					channels=1, dtype='int16',device=device)
+	sd.wait()
+	write(filename,sample_rate, audio_data)
+	print(f"sdd::Saved {filename}")
 def main():
 	# 장치 ID, 녹음 속도, 녹음 시간, 간격 설정
 	device_name = ""  # 사용할 마이크의 이름으로 변경
