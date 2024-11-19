@@ -1,0 +1,5 @@
+/documents
+/train dataset
+/dataset
+./siamese_model.pth
+./fire_alarm_autoencoder.pth
