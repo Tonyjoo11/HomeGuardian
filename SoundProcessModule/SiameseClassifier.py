@@ -78,9 +78,9 @@ class SiameseTrainer:
 
 		if os.path.exists(self.model_path):
 			self.model.load_state_dict(torch.load(self.model_path))
-			print(f"모델을 '{self.model_path}'에서 불러왔습니다.")
+			print(f"SiaClassifi::모델을 '{self.model_path}'에서 불러왔습니다.")
 		else:
-			print("새 모델을 생성합니다.")
+			print("SiaClassifi::새 모델을 생성합니다.")
 
 	def train_model(self, data_path, epochs=10, batch_size=32, learning_rate=0.001):
 		transform = transforms.Compose([
@@ -115,10 +115,10 @@ class SiameseTrainer:
 				optimizer.step()
 				running_loss += loss.item()
 
-			print(f"Epoch [{epoch+1}/{epochs}], Loss: {running_loss / len(dataloader):.4f}")
+			print(f"SiaClassifi::Epoch [{epoch+1}/{epochs}], Loss: {running_loss / len(dataloader):.4f}")
 
 		torch.save(self.model.state_dict(), self.model_path)
-		print("Siamese 모델이 저장되었습니다.")
+		print("SiaClassifi::Siamese 모델이 저장되었습니다.")
 
 	def predict_similarity(self, image_path, reference_image_path, threshold=0.5):
 		transform = transforms.Compose([
@@ -135,10 +135,10 @@ class SiameseTrainer:
 			distance = pairwise_distance(output1, output2).item()
 			isSim=bool()
 			if distance < threshold:
-				print(f"{image_path} 은 유사합니다. 유사도 거리: {distance:.4f}")
+				print(f"SiaClassifi::{image_path} 은 유사합니다. 유사도 거리: {distance:.4f}")
 				return True
 			else:
-				print(f"{image_path} 은 유사하지 않습니다. 유사도 거리: {distance:.4f}")
+				print(f"SiaClassifi::{image_path} 은 유사하지 않습니다. 유사도 거리: {distance:.4f}")
 				return False
 			
 
@@ -150,7 +150,7 @@ def main():
 	if not os.path.exists(trainer.model_path):
 		trainer.train_model(data_path=data_path, epochs=10, batch_size=32, learning_rate=0.001)
 	else:
-		print("저장된 모델을 불러왔습니다.")
+		print("SiaClassifi::저장된 모델을 불러왔습니다.")
 
 	# 유사도 예측 (참고 이미지와 비교)
 	for filename in os.listdir("test"):

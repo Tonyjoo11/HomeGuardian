@@ -1,7 +1,7 @@
 import SoundProcessModule.SoundDataDivider as sdd
 import SoundProcessModule.SoundToImageConverter as stoi
 import SoundProcessModule.SiameseClassifier as siamese
-# import SoundProcessModule.dBChecker as dbc
+import SoundProcessModule.dBChecker as dbc
 # import UI as tui
 import os
 import sounddevice as sd
@@ -37,6 +37,10 @@ async def start_soundProcess():
 		os.mkdir(record_folder)
 	divider = sdd.SoundDataDivider(device_id=1, sample_rate=44100, 
 								duration=5, interval=6,save_folder=record_folder)
+	
+	
+	
+	
 	# print(sd.query_devices())
 	img_folder="spectrogram"
 	converter = stoi.SoundToImageConverter(input_folder=record_folder,output_folder="spectrogram")
@@ -61,7 +65,7 @@ async def start_soundProcess():
 		await task
 
 async def loop_soundProcess(divider,converter,trainer,record_folder,img_folder,count):
-	
+	dBchecker = dbc.dBChecker()
 	try:
 		while True:
 			# 사운드 저장
@@ -69,7 +73,9 @@ async def loop_soundProcess(divider,converter,trainer,record_folder,img_folder,c
 			# print(count)
 			# print(cur_recordname)
 			# print(os.path.join(record_folder,cur_recordname))
-			
+			dBchecker.file_path = os.path.join(record_folder,cur_recordname)
+			dB = dBchecker.check_decibel()
+			print(f"dbc: {cur_recordname}:{dB}dB")
 			# 멜-스펙트로그램으로 전환하여 저장
 			converter.save_mel_spectrogram(filepath=os.path.join(record_folder,cur_recordname),filename=cur_recordname)
 			count+=1

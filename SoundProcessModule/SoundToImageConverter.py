@@ -32,9 +32,9 @@ class SoundToImageConverter:
 			spectrogram_path = os.path.join(self.output_folder, filename.replace('.wav', '.png'))
 			plt.savefig(spectrogram_path, bbox_inches='tight', pad_inches=0)
 			plt.close()
-			print(f"Saved mel spectrogram: {spectrogram_path}")
+			print(f"stoi::Saved mel spectrogram: {spectrogram_path}")
 		except Exception as e:
-			print(f"멜 스펙트로그램 저장 실패: {filename}, 오류: {e}")
+			print(f"stoi::멜 스펙트로그램 저장 실패: {filename}, 오류: {e}")
 
 # 사용 예시
 def main():
@@ -50,7 +50,7 @@ def main():
 	# WAV 파일을 스펙트로그램 이미지로 변환
 	converter.convert_to_spectrogram()
 	
-	print("모든 WAV 파일이 스펙트로그램 이미지로 변환되었습니다.")
+	print("stoi::모든 WAV 파일이 스펙트로그램 이미지로 변환되었습니다.")
 
 # if __name__ == '__main__':
 # 	main()
