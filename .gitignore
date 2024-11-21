@@ -7,3 +7,4 @@
 /SoundProcessModule/__pycache__
 /record
 /spectrogram
+siamese_model.pth

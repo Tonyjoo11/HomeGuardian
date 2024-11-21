@@ -80,7 +80,7 @@ class SiameseTrainer:
 			self.model.load_state_dict(torch.load(self.model_path))
 			print(f"모델을 '{self.model_path}'에서 불러왔습니다.")
 		else:
-			print("새 모델이 생성되었습니다.")
+			print("새 모델을 생성합니다.")
 
 	def train_model(self, data_path, epochs=10, batch_size=32, learning_rate=0.001):
 		transform = transforms.Compose([
@@ -133,11 +133,14 @@ class SiameseTrainer:
 		with torch.no_grad():
 			output1, output2 = self.model(image1, image2)
 			distance = pairwise_distance(output1, output2).item()
+			isSim=bool()
 			if distance < threshold:
-				print(f"{image_path} 은 유사합니다.",end="")
+				print(f"{image_path} 은 유사합니다. 유사도 거리: {distance:.4f}")
+				return True
 			else:
-				print(f"{image_path} 은 유사하지 않습니다.",end="")
-			print(f"유사도 거리: {distance:.4f}")
+				print(f"{image_path} 은 유사하지 않습니다. 유사도 거리: {distance:.4f}")
+				return False
+			
 
 # 사용 예시
 def main():
