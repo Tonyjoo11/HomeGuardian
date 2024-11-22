@@ -3,13 +3,13 @@ from scipy.io import wavfile
 import os
 import glob
 class dBChecker:
-	def __init__(self, file_path):
+	def __init__(self):
 		"""
 		dBChecker 클래스 초기화.
 
 		:param file_path: 데시벨을 계산할 .wav 파일 경로
 		"""
-		self.file_path = file_path
+		# self.file_path = file_path
 
 	def read_audio_file(self):
 		"""
@@ -17,7 +17,7 @@ class dBChecker:
 
 		:return: 샘플링 속도, 오디오 데이터 (numpy 배열)
 		"""
-		print(f"Reading audio data from {self.file_path}...")
+		print(f"dBc::Reading audio data from {self.file_path}...")
 		sample_rate, audio_data = wavfile.read(self.file_path)
 		return sample_rate, audio_data
 
