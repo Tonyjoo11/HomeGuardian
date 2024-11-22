@@ -65,14 +65,12 @@ async def start_soundProcess():
 		await task
 
 async def loop_soundProcess(divider,converter,trainer,record_folder,img_folder,count):
-	dBchecker = dbc.dBChecker()
 	try:
+		dBchecker = dbc.dBChecker()
+	
 		while True:
 			# 사운드 저장
 			cur_recordname=divider.record_one(count)
-			# print(count)
-			# print(cur_recordname)
-			# print(os.path.join(record_folder,cur_recordname))
 			dBchecker.file_path = os.path.join(record_folder,cur_recordname)
 			dB = dBchecker.check_decibel()
 			print(f"dbc: {cur_recordname}:{dB}dB")
@@ -81,14 +79,15 @@ async def loop_soundProcess(divider,converter,trainer,record_folder,img_folder,c
 			count+=1
 
 			# 전환한 이미지를 예측
-			isFireAlarm=trainer.predict_similarity(img_folder+"/"+cur_recordname.replace('.wav', '.png'), "dataset/fire_alarm/reference.png", threshold=0.4)
+			reference = "dataset/fire_alarm/reference.png"
+			isFireAlarm=trainer.predict_similarity(img_folder+"/"+cur_recordname.replace('.wav', '.png'), reference, threshold=0.4)
 			await asyncio.sleep(1)
 			if isFireAlarm:
 				raise_fireAlarm()
 
 			# 이미지와 사운드가 20개 이상이면, 기존 것 삭제
 			
-			if len(os.listdir(record_folder)) > 20:
+			if count > 20:
 				print("파일 20개 초과, 삭제")
 				os.remove(record_folder+"/"+f"recording_{count-20}.wav")
 				os.remove(img_folder+"/"+f"recording_{count-20}.png")
@@ -103,8 +102,9 @@ def stop_soundProcess(loop):
 		task.cancel()
 	loop.stop()
 
+def raise_fireAlarm():
+	print("FIRE_ALARM")
+
 if __name__ == '__main__':
 	main()
 
-def raise_fireAlarm():
-	print("FIRE_ALARM")
