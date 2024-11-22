@@ -1,9 +1,8 @@
 import sounddevice as sd
-import numpy as np
 from scipy.io.wavfile import write
 import time
 import os
-
+import asyncio
 class SoundDataDivider:
 	def __init__(self, device_id, sample_rate=44100,save_folder="record", duration=5, interval=10):
 		"""
@@ -25,20 +24,38 @@ class SoundDataDivider:
 		
 		self.save_folder = save_folder
 	
-	def record_audio(self,filename, duration, sample_rate,device):
+	async def record_audio(self,filename, duration, sample_rate,device):
 		# print("!")
+
+		loop = asyncio.get_event_loop()
 		print(f"sdd::Recording {duration} seconds on device {device}...")
-		audio_data = sd.rec(int(duration *sample_rate), samplerate=sample_rate,
-						channels=1, dtype='int16',device=device)
-		sd.wait()
-		write(filename,sample_rate, audio_data)
+		
+		# audio_data = sd.rec(int(duration *sample_rate), samplerate=sample_rate,
+		# 				channels=1, dtype='int16',device=device)
+		# sd.wait()
+		
+		audio_data = await loop.run_in_executor(None, self._record_audio_sync)
+
+		# write(filename,sample_rate, audio_data)
+		
+		await loop.run_in_executor(None,write,filename,self.sample_rate,audio_data,)
 		print(f"sdd::Saved {filename}")
-	def record_one(self,count):
+
+	def _record_audio_sync(self):
+		audio_data = sd.rec(int(self.duration * self.sample_rate), 
+			samplerate=self.sample_rate,
+			channels=1, 
+			dtype='int16', 
+			device=self.device_id
+		)
+		sd.wait()
+		return audio_data
+
+	async def record_one(self,count):
 		filename = self.save_folder + f"/recording_{count}.wav"
 		
-		self.record_audio(filename, self.duration, self.sample_rate, device=self.device_id)
-		
-		time.sleep(max(0,self.interval-self.duration))
+		await self.record_audio(filename, self.duration, self.sample_rate, device=self.device_id)
+		await asyncio.sleep(max(0,self.interval-self.duration))
 		return f"recording_{count}.wav"
 
 	def start_recording(self):
@@ -96,5 +113,5 @@ def main():
 	except KeyboardInterrupt:
 		divider.stop_recording()
 
-if __name__ == "__main__":
-	main()
+# if __name__ == "__main__":
+# 	main()
