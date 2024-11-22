@@ -1,9 +1,15 @@
 import cv2
 import customtkinter as ctk
 from tkinter import messagebox
-from PIL import Image  # Pillow 모듈 사용
+from PIL import Image as IM
+from PIL import ImageTk as IMK## Pillow 모듈 사용
 from datetime import datetime
 import threading
+from kakaotalk_send import send_message
+from urllib.request import urlopen
+import numpy as np
+from tkinter import *
+
 # CustomTkinter 테마 설정 (라이트 모드 또는 다크 모드)
 ctk.set_appearance_mode("light")  # "light" 또는 "dark"로 설정 가능
 
@@ -18,15 +24,6 @@ class App(ctk.CTk):
         
         # 창 닫기 버튼(X)을 눌렀을 때의 동작 설정
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
-        
-        # 배경 이미지 추가 (CTkImage 사용)
-        try:
-            bg_image = Image.open("background.jpg")  # 이미지 파일 경로를 정확히 지정하세요
-            self.bg_image = ctk.CTkImage(light_image=bg_image, size=(800, 600))  # CTkImage로 변환하여 사용
-            self.bg_label = ctk.CTkLabel(self, image=self.bg_image, text="")  # CTkLabel에 이미지 적용
-            self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)  # 배경 이미지를 창 전체에 맞춤
-        except FileNotFoundError:
-            print("배경 이미지를 찾을 수 없습니다. 경로를 확인하세요.")
         
         self.current_screen = None
         self.setup_ui()
@@ -206,14 +203,14 @@ class EmergencyScreen(ctk.CTkFrame):
        # 신고 확정 버튼 (크기 및 글씨 크기 조정)
        ctk.CTkButton(button_frame,
                      text="신고 확정",
-                     command=lambda: master.show_report_screen(),
+                     command=lambda: [master.show_report_screen(), send_message()],
                      width=200, height=100,
                      font=("Helvetica", 24)).pack(side=ctk.LEFT, padx=10)
 
        # 신고 취소 버튼 (크기 및 글씨 크기 조정 -> 현재 창에서 처리됨)
        ctk.CTkButton(button_frame,
                      text="신고 취소",
-                     command=lambda: master.show_cancel_confirmation(),
+                     command=lambda: [master.show_cancel_confirmation()],
                      width=200, height=100,
                      font=("Helvetica", 24)).pack(side=ctk.RIGHT, padx=10)
 
@@ -236,57 +233,76 @@ class ReportScreen(ctk.CTkFrame):
 class DoorlockCamScreen(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
+        self.width, self.height = 800, 600
+        self.master.geometry(f"{self.width}x{self.height}")
         
-        # 라벨: "도어락 벨소리 감지됨"
-        self.alert_label = ctk.CTkLabel(self, text="도어락 벨소리 감지됨", font=("Helvetica", 24))
-        self.alert_label.place(relx=0.5, rely=0.05, anchor=ctk.CENTER)
+        self.url = "http://192.168.166.203:81/stream"
+        self.stream = None
+        self.buffer = b''
         
-        # 스트리밍 화면 (크기를 더 크게 설정)
-        self.video_label = ctk.CTkLabel(self, text="")
-        self.video_label.place(relx=0.5, rely=0.4, anchor=ctk.CENTER)  # 위치를 중앙으로 설정
+        # Canvas 생성
+        self.canvas = ctk.CTkCanvas(self, width=self.width, height=self.height)
+        self.canvas.pack()
         
-        # 확인완료 버튼 (화면 하단에 위치)
-        self.confirm_button = ctk.CTkButton(self, text="확인완료", command=self.confirm_and_return,
-                                            width=200, height=50, font=("Helvetica", 20))
-        self.confirm_button.place(relx=0.5, rely=0.9, anchor=ctk.CENTER)
-        
-        # 웹캠 초기화
-        self.cap = None
-        self.stop_event = threading.Event()
+        # 뒤로가기 버튼
+        self.back_button = ctk.CTkButton(self, text="뒤로가기", 
+                                       command=self.go_back,
+                                       width=100, height=40)
+        self.back_button.place(x=10, y=10)
     
     def start_streaming(self):
-        """웹캠 스트리밍을 시작"""
-        if not self.cap or not self.cap.isOpened():
-            self.cap = cv2.VideoCapture(0)
-            self.stop_event.clear()
-            threading.Thread(target=self.update_frame, daemon=True).start()
+        try:
+            self.stream = urlopen(self.url)
+            self.buffer = b''  # 버퍼 초기화
+            self.update()
+        except Exception as e:
+            print(f"스트리밍 시작 오류: {e}")
     
-    def update_frame(self):
-        """웹캠에서 프레임을 읽어와 화면에 표시"""
-        while not self.stop_event.is_set():
-            ret, frame = self.cap.read()
-            if ret:
-                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                pil_image = Image.fromarray(frame_rgb)
-                # 스트리밍 화면 크기를 더 크게 설정 (640x480)
-                ctk_image = ctk.CTkImage(light_image=pil_image, size=(512, 384))
-                self.video_label.configure(image=ctk_image)
-                self.video_label.image = ctk_image  # 이미지 참조 유지
-            cv2.waitKey(30)  # 약간의 지연을 추가하여 CPU 사용량 감소
+    def update(self):
+        try:
+            chunk = self.stream.read(4096)  # 버퍼 크기 증가
+            if not chunk:
+                return
+                
+            self.buffer += chunk
+            
+            # JPEG 시작과 끝 마커 찾기
+            while True:
+                head = self.buffer.find(b'\xff\xd8')
+                if head == -1:
+                    self.buffer = b''  # 시작 마커가 없으면 버퍼 비우기
+                    break
+                    
+                end = self.buffer.find(b'\xff\xd9', head)
+                if end == -1:
+                    break
+                    
+                jpg = self.buffer[head:end+2]
+                self.buffer = self.buffer[end+2:]
+                
+                # JPEG 데이터 검증
+                if len(jpg) > 4 and jpg.startswith(b'\xff\xd8') and jpg.endswith(b'\xff\xd9'):
+                    frame = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
+                    if frame is not None:
+                        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                        image = IM.fromarray(frame)
+                        photo = IMK.PhotoImage(image=image)
+                        self.canvas.create_image(0, 0, image=photo, anchor='nw')
+                        self.canvas.image = photo
+            
+            self.after(10, self.update)
+        except Exception as e:
+            print(f"스트리밍 업데이트 오류: {e}")
     
-    def confirm_and_return(self):
-        """확인완료 버튼 클릭 시 대기화면으로 돌아감"""
-        self.stop_event.set()
-        if self.cap and self.cap.isOpened():
-            self.cap.release()
+    def go_back(self):
+        if self.stream:
+            self.stream.close()
         self.master.show_standby_screen()
     
     def on_closing(self):
-        """창이 닫힐 때 웹캠 리소스 해제"""
-        self.stop_event.set()
-        if self.cap and self.cap.isOpened():
-            self.cap.release()
+        if self.stream:
+            self.stream.close()
 
-if __name__ == "__main__":
-    app = App()
-    app.mainloop()
+# if __name__ == "__main__":
+    # app = App()
+    # app.mainloop()

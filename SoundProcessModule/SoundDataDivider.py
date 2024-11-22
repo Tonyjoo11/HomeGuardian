@@ -82,6 +82,7 @@ def main():
 	# 저장 폴더 경로
 	save_folder = "record"
 	
+	print(sd.query_devices())
 	# 폴더가 존재하지 않으면 생성
 	if not os.path.exists(save_folder):
 		os.makedirs(save_folder)
@@ -95,5 +96,5 @@ def main():
 	except KeyboardInterrupt:
 		divider.stop_recording()
 
-# if __name__ == "__main__":
-# 	main()
+if __name__ == "__main__":
+	main()

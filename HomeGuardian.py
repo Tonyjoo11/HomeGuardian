@@ -1,8 +1,9 @@
-import SoundProcessModule.SoundDataDivider as sdd
-import SoundProcessModule.SoundToImageConverter as stoi
-import SoundProcessModule.SiameseClassifier as siamese
-import SoundProcessModule.dBChecker as dbc
-# import UI as tui
+from SoundProcessModule import SoundDataDivider as sdd
+from SoundProcessModule import SoundToImageConverter as stoi
+from SoundProcessModule import SiameseClassifier as siamese
+from SoundProcessModule import dBChecker as dbc
+from UI import UI
+
 import os
 import sounddevice as sd
 import asyncio
