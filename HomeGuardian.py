@@ -4,7 +4,7 @@ from SoundProcessModule import SiameseClassifier as siamese
 from SoundProcessModule import dBChecker as dbc
 import UI.UI as ui
 
-
+#유상 하이
 import os
 import sounddevice as sd
 import asyncio
