@@ -244,7 +244,7 @@ class DoorlockCamScreen(ctk.CTkFrame):
 		self.width, self.height = 800, 600
 		self.master.geometry(f"{self.width}x{self.height}")
 		
-		self.url = "http://192.168.166.203:81/stream"
+		self.url = "http://192.168.255.203:81/stream"
 		self.stream = None
 		self.buffer = b''
 		
