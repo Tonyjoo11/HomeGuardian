@@ -14,8 +14,8 @@ MESSAGE_URL = "https://kapi.kakao.com/v1/api/talk/friends/message/default/send" 
 
 # 저장된 토큰을 파일에서 읽기
 def load_tokens():
-    if os.path.exists("tokens.json"):
-        with open("tokens.json", "r") as file:
+    if os.path.exists("UI/tokens.json"):
+        with open("UI/tokens.json", "r") as file:
             return json.load(file)
     else:
         return None
