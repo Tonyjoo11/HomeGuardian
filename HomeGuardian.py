@@ -32,7 +32,7 @@ async def main():
 		print("KeyboardInterrupt 발생")
 	except Exception as e:
 		print(f"Error:{e}")
-	finally:
+	# finally:
 		#loop.close()
 
 
