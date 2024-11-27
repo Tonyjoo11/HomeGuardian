@@ -24,7 +24,6 @@ async def main():
 		print(f"Error: {e}")
 	
 	try:
-		
 		await asyncio.gather(
 			app.tkinter_event_loop(),  # Tkinter 이벤트 루프
 			sound_task,  # 추가 비동기 작업 실행

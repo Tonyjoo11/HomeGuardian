@@ -253,7 +253,8 @@ class DoorlockCamScreen(ctk.CTkFrame):
 		self.width, self.height = width,height
 		self.master.geometry(f"{self.width}x{self.height}")
 		
-		self.url = "http://192.168.255.203:81/stream"
+		# wi-fi 변경 시마다 주소 갱신 필요
+		self.url = "http://192.168.45.203:81/stream"
 		self.stream = None
 		self.buffer = b''
 		
