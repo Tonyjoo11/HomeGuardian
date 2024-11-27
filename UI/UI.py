@@ -177,7 +177,7 @@ class StandbyScreen(ctk.CTkFrame):
 									width=200, height=100,
 									font=("Helvetica", 24))
 		
-		fire_button.place(relx=0.3, rely=0.8, anchor=ctk.CENTER)
+		fire_button.place(relx=0.2, rely=0.7, anchor=ctk.CENTER)
 
 		# 가스 누출 버튼 (크기 및 글씨 크기 조정)
 		gas_button = ctk.CTkButton(self,
@@ -186,11 +186,11 @@ class StandbyScreen(ctk.CTkFrame):
 								   width=200, height=100,
 								   font=("Helvetica", 24))
 		
-		gas_button.place(relx=0.7, rely=0.8, anchor=ctk.CENTER)
+		gas_button.place(relx=0.8, rely=0.7, anchor=ctk.CENTER)
 		
 		doorlock_button = ctk.CTkButton(self, text="도어락 캠", command=lambda: master.show_doorlock_cam_screen(),
 								width=200, height=100, font=("Helvetica", 24))
-		doorlock_button.place(relx=0.5, rely=0.6, anchor=ctk.CENTER)
+		doorlock_button.place(relx=0.5, rely=0.7, anchor=ctk.CENTER)
 		# 시계 업데이트 시작
 		self.update_clock()
 		
