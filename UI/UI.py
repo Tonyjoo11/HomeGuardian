@@ -18,7 +18,8 @@ class App(ctk.CTk):
 		# ctk.set_appearance_mode("light")  # "light" 또는 "dark"로 설정 가능
 		super().__init__()
 		self.title("Emergency Response System")
-		self.geometry("800x480")
+		self.width, self.height = 800, 480
+		self.geometry(f"{self.width}x{self.height}")
 		
 		# UI 종료 시에 호출하는 콜백
 		try:
@@ -42,7 +43,7 @@ class App(ctk.CTk):
 		self.fire_screen = EmergencyScreen(self, "화재가 발생했습니다!", self.show_standby_screen)
 		self.gas_screen = EmergencyScreen(self, "가스가 누출되었습니다!", self.show_standby_screen)
 		self.report_screen = ReportScreen(self, self.show_standby_screen)
-		self.doorlock_cam_screen = DoorlockCamScreen(self)
+		self.doorlock_cam_screen = DoorlockCamScreen(self,self.width,self.height)
 		
 		# 대기 화면으로 시작
 		self.show_standby_screen()
@@ -247,9 +248,9 @@ class ReportScreen(ctk.CTkFrame):
 						font=("Helvetica", 24)).pack(pady=20)
 
 class DoorlockCamScreen(ctk.CTkFrame):
-	def __init__(self, master):
+	def __init__(self, master,width,height):
 		super().__init__(master)
-		self.width, self.height = 800, 480
+		self.width, self.height = width,height
 		self.master.geometry(f"{self.width}x{self.height}")
 		
 		self.url = "http://192.168.255.203:81/stream"
