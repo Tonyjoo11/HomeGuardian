@@ -2,7 +2,8 @@ import os
 import random
 import pandas as pd
 from pytubefix import YouTube
-from moviepy.editor import AudioFileClip
+from moviepy.audio.io.AudioFileClip import AudioFileClip
+
 
 class AudioSetDownloader:
     def __init__(self, csv_path, output_folder='fire_alarm_clips', non_fire_alarm_folder='non_fire_alarm'):
