@@ -14,12 +14,18 @@ import asyncio
 # CustomTkinter 테마 설정 (라이트 모드 또는 다크 모드)
 
 class App(ctk.CTk):
-	def __init__(self):
+	def __init__(self,stop_callback,loop):
 		# ctk.set_appearance_mode("light")  # "light" 또는 "dark"로 설정 가능
 		super().__init__()
 		self.title("Emergency Response System")
-		self.geometry("800x600")
+		self.geometry("800x480")
 		
+		# UI 종료 시에 호출하는 콜백
+		try:
+			self.stop_callback=stop_callback
+			self.loop=loop
+		except Exception as e:
+			print(f"UI initializing Error: {e}")
 		# 창 크기 고정
 		self.resizable(False, False)
 		
@@ -149,6 +155,8 @@ class App(ctk.CTk):
 			if hasattr(self, 'doorlock_cam_screen'):
 				self.doorlock_cam_screen.on_closing()
 			self.running=False
+			print("closing UI...")
+			self.stop_callback(self.loop)
 			self.destroy()
 
 class StandbyScreen(ctk.CTkFrame):
@@ -244,7 +252,7 @@ class DoorlockCamScreen(ctk.CTkFrame):
 		self.width, self.height = 800, 600
 		self.master.geometry(f"{self.width}x{self.height}")
 		
-		self.url = "http://192.168.166.203:81/stream"
+		self.url = "http://192.168.255.203:81/stream"
 		self.stream = None
 		self.buffer = b''
 		
