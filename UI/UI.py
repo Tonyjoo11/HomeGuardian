@@ -249,7 +249,7 @@ class ReportScreen(ctk.CTkFrame):
 class DoorlockCamScreen(ctk.CTkFrame):
 	def __init__(self, master):
 		super().__init__(master)
-		self.width, self.height = 800, 600
+		self.width, self.height = 800, 480
 		self.master.geometry(f"{self.width}x{self.height}")
 		
 		self.url = "http://192.168.255.203:81/stream"
