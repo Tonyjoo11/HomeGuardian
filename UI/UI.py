@@ -18,7 +18,7 @@ class App(ctk.CTk):
 		# ctk.set_appearance_mode("light")  # "light" 또는 "dark"로 설정 가능
 		super().__init__()
 		self.title("Emergency Response System")
-		self.geometry("800x600")
+		self.geometry("800x480")
 		
 		# UI 종료 시에 호출하는 콜백
 		try:
