@@ -17,7 +17,7 @@ class dBChecker:
 
 		:return: 샘플링 속도, 오디오 데이터 (numpy 배열)
 		"""
-		print(f"dBc::Reading audio data from {self.file_path}...")
+		# print(f"dBc::Reading audio data from {self.file_path}...")
 		sample_rate, audio_data = wavfile.read(self.file_path)
 		return sample_rate, audio_data
 
