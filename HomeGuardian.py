@@ -12,14 +12,17 @@ recording=True
 async def main():
 	print("Welcome To HomeGuardian")
 
-	app = ui.App()
 
-	sound_task = asyncio.create_task(start_soundProcess())
 	
 	# ESC 키를 눌렀을 때 루프 종료
+	try:
+		loop = asyncio.get_event_loop()
+		sound_task = asyncio.create_task(start_soundProcess())	
+		app = ui.App(stop_callback=stop_soundProcess,loop=loop)
+		keyboard.on_press_key("esc", lambda _: stop_soundProcess(loop))
 	
-	# loop = asyncio.get_event_loop(())
-	# keyboard.on_press_key("esc", lambda _: stop_soundProcess(loop))
+	except Exception as e:
+		print(f"Error: {e}")
 	
 	try:
 		
@@ -114,11 +117,11 @@ async def loop_soundProcess(divider,converter,trainer,record_folder,img_folder,c
 		print(f"Error in loop_soundProcess: {e}")
 		raise
 
-# def stop_soundProcess(loop):
-# 	print("loop stopped")
-# 	for task in asyncio.all_tasks(loop):
-# 		task.cancel()
-# 	loop.stop()
+def stop_soundProcess(loop):
+	print("loop stopped")
+	for task in asyncio.all_tasks(loop):
+		task.cancel()
+	loop.stop()
 
 def raise_fireAlarm():
 	print("FIRE_ALARM")
