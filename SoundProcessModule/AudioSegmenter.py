@@ -60,8 +60,8 @@ class AudioSegmenter:
 
 def main():
 
-	input_folder='non_fire_alarm'
-	output_folder='rand_segments_clips_spc'
+	input_folder='train dataset/beep'
+	output_folder='train dataset/beep_spectrogram'
 	# AudioSegmenter 객체 생성
 	segmenter = AudioSegmenter(input_folder=input_folder, output_folder=output_folder, segment_duration=5)
 	

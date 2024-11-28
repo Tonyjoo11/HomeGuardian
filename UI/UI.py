@@ -17,6 +17,8 @@ class App(ctk.CTk):
 	def __init__(self,stop_callback,loop):
 		# ctk.set_appearance_mode("light")  # "light" 또는 "dark"로 설정 가능
 		super().__init__()
+		img = IM.open("UI\\backgroundimage.png")
+		bg = IMK.PhotoImage(img)
 		self.title("Emergency Response System")
 		self.width, self.height = 800, 480
 		self.geometry(f"{self.width}x{self.height}")
@@ -86,7 +88,7 @@ class App(ctk.CTk):
 			# 신고 취소 확인 메시지 및 버튼 표시
 			ctk.CTkLabel(self.current_screen,
 						 text="정말 신고를 취소하시겠습니까?",
-						 font=("Helvetica", 24)).pack(pady=20)
+						 font=("Helvetica", 48, "bold")).pack(pady=80)
 
 			button_frame = ctk.CTkFrame(self.current_screen)
 			button_frame.pack(pady=20)
@@ -96,14 +98,14 @@ class App(ctk.CTk):
 						  text="예",
 						  command=self.show_standby_screen,
 						  width=200, height=100,
-						  font=("Helvetica", 24)).pack(side=ctk.LEFT, padx=10)
+						  font=("Helvetica", 24, "bold")).pack(side=ctk.LEFT, padx=10)
 
 			# 아니오 버튼 (취소하지 않고 다시 긴급 상황 화면으로 돌아감)
 			ctk.CTkButton(button_frame,
 						  text="아니오",
 						  command=lambda: [self.restore_previous_emergency()],
 						  width=200, height=100,
-						  font=("Helvetica", 24)).pack(side=ctk.RIGHT, padx=10)
+						  font=("Helvetica", 24,"bold")).pack(side=ctk.RIGHT, padx=10)
 
 	def restore_previous_emergency(self):
 		"""긴급 상황 화면으로 복귀"""
@@ -115,8 +117,8 @@ class App(ctk.CTk):
 		if isinstance(self.current_screen, EmergencyScreen):
 			message_label = ctk.CTkLabel(self.current_screen,
 										 text=self.current_screen.message_text,
-										 font=("Helvetica", 24))
-			message_label.pack(pady=20)
+										 font=("Helvetica", 48,"bold"))
+			message_label.pack(pady=80)
 
 			button_frame = ctk.CTkFrame(self.current_screen)
 			button_frame.pack(pady=20)
@@ -126,14 +128,14 @@ class App(ctk.CTk):
 						  text="신고 확정",
 						  command=self.show_report_screen,
 						  width=200, height=100,
-						  font=("Helvetica", 24)).pack(side=ctk.LEFT, padx=10)
+						  font=("Helvetica", 24,"bold")).pack(side=ctk.LEFT, padx=10)
 
 			# 신고 취소 버튼 복구
 			ctk.CTkButton(button_frame,
 						  text="신고 취소",
 						  command=self.show_cancel_confirmation,
 						  width=200, height=100,
-						  font=("Helvetica", 24)).pack(side=ctk.RIGHT, padx=10)
+						  font=("Helvetica", 24,"bold")).pack(side=ctk.RIGHT, padx=10)
 	
 	def show_doorlock_cam_screen(self):
 		"""도어락 캠 스트리밍 화면으로 전환"""
@@ -165,7 +167,7 @@ class StandbyScreen(ctk.CTkFrame):
 		super().__init__(master)
 		
 		# 중앙에 시계를 배치하기 위한 레이블 (크기 3배 확대 및 위치 상단으로 조정)
-		self.clock_label = ctk.CTkLabel(self, text="", font=("Helvetica", 144))  # 글씨 크기를 3배로 키움 (48 -> 144)
+		self.clock_label = ctk.CTkLabel(self, text="", font=("Helvetica", 144,"bold"))  # 글씨 크기를 3배로 키움 (48 -> 144)
 		
 		# 시계 위치를 위쪽으로 이동 (relx는 그대로 두고 rely를 줄여서 위로 이동)
 		self.clock_label.place(relx=0.5, rely=0.3, anchor=ctk.CENTER)  # rely 값을 줄여서 시계를 위로 이동
@@ -175,7 +177,7 @@ class StandbyScreen(ctk.CTkFrame):
 									text="화재 발생",
 									command=lambda: master.show_fire_screen(),
 									width=200, height=100,
-									font=("Helvetica", 24))
+									font=("Helvetica", 24, "bold"))
 		
 		fire_button.place(relx=0.2, rely=0.7, anchor=ctk.CENTER)
 
@@ -184,12 +186,12 @@ class StandbyScreen(ctk.CTkFrame):
 								   text="가스 누출",
 								   command=lambda: master.show_gas_screen(),
 								   width=200, height=100,
-								   font=("Helvetica", 24))
+								   font=("Helvetica", 24, "bold"))
 		
 		gas_button.place(relx=0.8, rely=0.7, anchor=ctk.CENTER)
 		
 		doorlock_button = ctk.CTkButton(self, text="도어락 캠", command=lambda: master.show_doorlock_cam_screen(),
-								width=200, height=100, font=("Helvetica", 24))
+								width=200, height=100, font=("Helvetica", 24, "bold"))
 		doorlock_button.place(relx=0.5, rely=0.7, anchor=ctk.CENTER)
 		# 시계 업데이트 시작
 		self.update_clock()
@@ -212,7 +214,7 @@ class EmergencyScreen(ctk.CTkFrame):
 		# 메시지 표시 (화재 또는 가스 누출 상황)
 		ctk.CTkLabel(self,
 						text=self.message_text,
-						font=("Helvetica", 24)).pack(pady=20)
+						font=("Helvetica", 48, "bold")).pack(pady=80)
 
 		button_frame = ctk.CTkFrame(self)
 		button_frame.pack(pady=20)
@@ -222,14 +224,14 @@ class EmergencyScreen(ctk.CTkFrame):
 						text="신고 확정",
 						command=lambda: [master.show_report_screen(), send_message()],
 						width=200, height=100,
-						font=("Helvetica", 24)).pack(side=ctk.LEFT, padx=10)
+						font=("Helvetica", 24, "bold")).pack(side=ctk.LEFT, padx=10)
 
 		# 신고 취소 버튼 (크기 및 글씨 크기 조정 -> 현재 창에서 처리됨)
 		ctk.CTkButton(button_frame,
 						text="신고 취소",
 						command=lambda: [master.show_cancel_confirmation()],
 						width=200, height=100,
-						font=("Helvetica", 24)).pack(side=ctk.RIGHT, padx=10)
+						font=("Helvetica", 24, "bold")).pack(side=ctk.RIGHT, padx=10)
 
 class ReportScreen(ctk.CTkFrame):
 	def __init__(self, master, end_callback):
@@ -238,14 +240,14 @@ class ReportScreen(ctk.CTkFrame):
 		# 신고 접수 완료 메시지 표시
 		ctk.CTkLabel(self,
 						text="신고접수가 완료되었습니다!\n위험상황이 발생중입니다!",
-						font=("Helvetica", 24)).pack(pady=20)
+						font=("Helvetica", 48, "bold")).pack(pady=80)
 
 		# 위험 상황 종료 버튼 추가 (크기 및 글씨 크기 조정)
 		ctk.CTkButton(self,
 						text="위험상황 종료",
 						command=end_callback,
 						width=200, height=100,
-						font=("Helvetica", 24)).pack(pady=20)
+						font=("Helvetica", 24, "bold")).pack(pady=20)
 
 class DoorlockCamScreen(ctk.CTkFrame):
 	def __init__(self, master, width, height):
@@ -259,12 +261,12 @@ class DoorlockCamScreen(ctk.CTkFrame):
 		self.buffer = b''
 		
 		# Canvas 생성
-		self.canvas = ctk.CTkCanvas(self, width=self.width, height=self.height)
+		self.canvas = ctk.CTkCanvas(self, width=640, height=480)
 		self.canvas.pack()
 		
 		# 뒤로가기 버튼
 		self.back_button = ctk.CTkButton(self, text="뒤로가기", 
-								   	   font=("Helvetica", 24),
+								   	   font=("Helvetica", 24, "bold"),
 									   command=self.go_back,
 									   width=200, height=80)
 		self.back_button.place(x=300, y=350)

@@ -55,7 +55,8 @@ async def start_soundProcess():
 	data_path = 'dataset'
 	trainer = siamese.SiameseTrainer()
 	if not os.path.exists(trainer.model_path):
-		trainer.train_model(data_path=data_path, epochs=10, batch_size=32, learning_rate=0.001)
+		# 인공지능 모델 생성
+		trainer.train_model(data_path=data_path, epochs=30, batch_size=32, learning_rate=0.001)
 	else:
 		print("siamese::저장된 모델을 불러왔습니다.")
 

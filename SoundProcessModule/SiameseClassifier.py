@@ -148,7 +148,7 @@ def main():
 	trainer = SiameseTrainer()
 
 	if not os.path.exists(trainer.model_path):
-		trainer.train_model(data_path=data_path, epochs=10, batch_size=32, learning_rate=0.001)
+		trainer.train_model(data_path=data_path, epochs=20, batch_size=32, learning_rate=0.001)
 	else:
 		print("SiaClassifi::저장된 모델을 불러왔습니다.")
 
