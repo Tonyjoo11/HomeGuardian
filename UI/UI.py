@@ -14,12 +14,19 @@ import asyncio
 # CustomTkinter 테마 설정 (라이트 모드 또는 다크 모드)
 
 class App(ctk.CTk):
-	def __init__(self):
+	def __init__(self,stop_callback,loop):
 		# ctk.set_appearance_mode("light")  # "light" 또는 "dark"로 설정 가능
 		super().__init__()
 		self.title("Emergency Response System")
-		self.geometry("800x600")
+		self.width, self.height = 800, 480
+		self.geometry(f"{self.width}x{self.height}")
 		
+		# UI 종료 시에 호출하는 콜백
+		try:
+			self.stop_callback=stop_callback
+			self.loop=loop
+		except Exception as e:
+			print(f"UI initializing Error: {e}")
 		# 창 크기 고정
 		self.resizable(False, False)
 		
@@ -36,7 +43,7 @@ class App(ctk.CTk):
 		self.fire_screen = EmergencyScreen(self, "화재가 발생했습니다!", self.show_standby_screen)
 		self.gas_screen = EmergencyScreen(self, "가스가 누출되었습니다!", self.show_standby_screen)
 		self.report_screen = ReportScreen(self, self.show_standby_screen)
-		self.doorlock_cam_screen = DoorlockCamScreen(self)
+		self.doorlock_cam_screen = DoorlockCamScreen(self,self.width,self.height)
 		
 		# 대기 화면으로 시작
 		self.show_standby_screen()
@@ -149,6 +156,8 @@ class App(ctk.CTk):
 			if hasattr(self, 'doorlock_cam_screen'):
 				self.doorlock_cam_screen.on_closing()
 			self.running=False
+			print("closing UI...")
+			self.stop_callback(self.loop)
 			self.destroy()
 
 class StandbyScreen(ctk.CTkFrame):
@@ -168,7 +177,7 @@ class StandbyScreen(ctk.CTkFrame):
 									width=200, height=100,
 									font=("Helvetica", 24))
 		
-		fire_button.place(relx=0.3, rely=0.8, anchor=ctk.CENTER)
+		fire_button.place(relx=0.2, rely=0.7, anchor=ctk.CENTER)
 
 		# 가스 누출 버튼 (크기 및 글씨 크기 조정)
 		gas_button = ctk.CTkButton(self,
@@ -177,11 +186,11 @@ class StandbyScreen(ctk.CTkFrame):
 								   width=200, height=100,
 								   font=("Helvetica", 24))
 		
-		gas_button.place(relx=0.7, rely=0.8, anchor=ctk.CENTER)
+		gas_button.place(relx=0.8, rely=0.7, anchor=ctk.CENTER)
 		
 		doorlock_button = ctk.CTkButton(self, text="도어락 캠", command=lambda: master.show_doorlock_cam_screen(),
 								width=200, height=100, font=("Helvetica", 24))
-		doorlock_button.place(relx=0.5, rely=0.6, anchor=ctk.CENTER)
+		doorlock_button.place(relx=0.5, rely=0.7, anchor=ctk.CENTER)
 		# 시계 업데이트 시작
 		self.update_clock()
 		
@@ -239,12 +248,13 @@ class ReportScreen(ctk.CTkFrame):
 						font=("Helvetica", 24)).pack(pady=20)
 
 class DoorlockCamScreen(ctk.CTkFrame):
-	def __init__(self, master):
+	def __init__(self, master,width,height):
 		super().__init__(master)
-		self.width, self.height = 800, 600
+		self.width, self.height = width,height
 		self.master.geometry(f"{self.width}x{self.height}")
 		
-		self.url = "http://192.168.166.203:81/stream"
+		# wi-fi 변경 시마다 주소 갱신 필요
+		self.url = "http://192.168.45.203:81/stream"
 		self.stream = None
 		self.buffer = b''
 		
