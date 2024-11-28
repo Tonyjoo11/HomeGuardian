@@ -24,7 +24,6 @@ async def main():
 		print(f"Error: {e}")
 	
 	try:
-		
 		await asyncio.gather(
 			app.tkinter_event_loop(),  # Tkinter 이벤트 루프
 			sound_task,  # 추가 비동기 작업 실행
@@ -73,7 +72,6 @@ async def start_soundProcess():
 		await task
 
 async def loop_soundProcess(divider,converter,trainer,record_folder,img_folder,count):
-	print("loop_sP start")
 	try:
 		dBchecker = dbc.dBChecker()
 	
@@ -84,7 +82,7 @@ async def loop_soundProcess(divider,converter,trainer,record_folder,img_folder,c
 
 			dBchecker.file_path = os.path.join(record_folder,cur_recordname)
 			dB = dBchecker.check_decibel()
-			print(f"dbc: {cur_recordname}:{dB}dB")
+			print(f"dBc: {cur_recordname}:{dB}dB")
 			# 멜-스펙트로그램으로 전환하여 저장
 			converter.save_mel_spectrogram(
 				filepath=os.path.join(record_folder,cur_recordname),

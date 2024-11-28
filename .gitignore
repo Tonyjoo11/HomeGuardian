@@ -11,4 +11,7 @@
 siamese_model.pth
 UI/tokens.json
 tempCodeRunnerFile.py
+dataset.zip
+unbalanced_train_segments_2.csv
+balanced_train_segments_2.csv
 test.py
