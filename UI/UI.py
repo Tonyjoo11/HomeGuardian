@@ -248,7 +248,7 @@ class ReportScreen(ctk.CTkFrame):
 						font=("Helvetica", 24)).pack(pady=20)
 
 class DoorlockCamScreen(ctk.CTkFrame):
-	def __init__(self, master,width,height):
+	def __init__(self, master, width, height):
 		super().__init__(master)
 		self.width, self.height = width,height
 		self.master.geometry(f"{self.width}x{self.height}")
@@ -264,9 +264,10 @@ class DoorlockCamScreen(ctk.CTkFrame):
 		
 		# 뒤로가기 버튼
 		self.back_button = ctk.CTkButton(self, text="뒤로가기", 
+								   	   font=("Helvetica", 24),
 									   command=self.go_back,
-									   width=100, height=40)
-		self.back_button.place(x=10, y=10)
+									   width=200, height=80)
+		self.back_button.place(x=300, y=350)
 	
 	def start_streaming(self):
 		try:
