@@ -168,7 +168,8 @@ async def loop_soundProcess(divider,converter,trainer,record_folder,img_folder,c
 
 def stop_soundProcess(loop):
 	print("loop stopped")
-	for task in asyncio.all_tasks(loop):
+	tasks = [task for task in asyncio.all_tasks(loop) if not task.done()]
+	for task in tasks:
 		task.cancel()
 	loop.stop()
 
