@@ -6,7 +6,7 @@ import UI.UI as ui
 import os
 import sounddevice as sd
 import asyncio
-import keyboard
+# import keyboard
 import BluetoothRaspTest as brt
 
 recording=True
@@ -19,9 +19,9 @@ async def main():
 
 		sound_task = asyncio.create_task(start_soundProcess())	
 		
-		keyboard.on_press_key("esc", lambda _: stop_soundProcess(loop))
+		# keyboard.on_press_key("esc", lambda _: stop_soundProcess(loop))
 		server_socket, port = brt.create_server_socket()
-		client_socket, address = await brt.accept_client_connection(server_socket)
+		client_socket, address = await try_accept_client_connection(server_socket)
 
 		app = ui.App(stop_callback=stop_soundProcess,
 			   loop=loop,
@@ -47,6 +47,24 @@ def send_bluetooth_fire(client_socket):
 	brt.handle_client_communication(client_socket,"RED")
 
 
+async def try_accept_client_connection(server_socket, retry_interval=5):
+    """
+    블루투스 클라이언트 연결을 지속적으로 시도합니다.
+    :param server_socket: 서버 소켓 객체
+    :param retry_interval: 연결 시도 간 간격 (초 단위)
+    :return: 연결된 클라이언트 소켓과 주소
+    """
+    print("Waiting for a client to connect...")
+    while True:
+        try:
+            client_socket, address = await brt.accept_client_connection(server_socket)
+            print(f"Client connected from {address}")
+            return client_socket, address  # 연결 성공 시 반환
+        except asyncio.TimeoutError:
+            print(f"No connection. Retrying in {retry_interval} seconds...")
+        except Exception as e:
+            print(f"Error during connection attempt: {e}")
+        await asyncio.sleep(retry_interval)  # 지정된 시간 대기 후 다시 시도
 
 async def start_soundProcess():
 	global recording

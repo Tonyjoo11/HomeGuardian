@@ -73,6 +73,9 @@ async def main():
 
 			except KeyboardInterrupt:
 				print("Program interrupted.")
+			except OSError as e:
+				print(e)
+				break
 			except Exception as e:
 				print(f"ERR: {e}")
 				
