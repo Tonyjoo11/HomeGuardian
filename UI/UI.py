@@ -17,8 +17,8 @@ class App(ctk.CTk):
 	def __init__(self,stop_callback,loop,fire_callback):
 		# ctk.set_appearance_mode("light")  # "light" 또는 "dark"로 설정 가능
 		super().__init__()
-		img = IM.open("UI\\backgroundimage.png")
-		bg = IMK.PhotoImage(img)
+		# img = IM.open("UI\\backgroundimage.png")
+		# bg = IMK.PhotoImage(img)
 		self.title("Emergency Response System")
 		self.width, self.height = 800, 480
 		self.geometry(f"{self.width}x{self.height}")
