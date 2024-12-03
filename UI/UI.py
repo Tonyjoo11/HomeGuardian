@@ -14,7 +14,7 @@ import asyncio
 # CustomTkinter 테마 설정 (라이트 모드 또는 다크 모드)
 
 class App(ctk.CTk):
-	def __init__(self,stop_callback,loop,fire_callback):
+	def __init__(self,stop_callback,loop,red_callback,yellow_callback,off_callback):
 		# ctk.set_appearance_mode("light")  # "light" 또는 "dark"로 설정 가능
 		super().__init__()
 		# img = IM.open("UI\\backgroundimage.png")
@@ -27,7 +27,9 @@ class App(ctk.CTk):
 		try:
 			self.stop_callback=stop_callback
 			self.loop=loop
-			self.fire_callback=fire_callback
+			self.red_callback=red_callback
+			self.yellow_callback=yellow_callback
+			self.off_callback=off_callback
 		except Exception as e:
 			print(f"UI initializing Error: {e}")
 		# 창 크기 고정
@@ -63,10 +65,10 @@ class App(ctk.CTk):
 		if self.current_screen:
 			self.current_screen.pack_forget()
 		# 화재 경보 발생 시 bluetooth 콜백 실행
-		asyncio.create_task(self.fire_callback())
-
 		self.current_screen = self.fire_screen
 		self.current_screen.pack(fill=ctk.BOTH, expand=True)
+		
+		asyncio.create_task(self.red_callback())
 
 	def show_gas_screen(self):
 		"""가스 누출 화면으로 전환"""
@@ -74,6 +76,8 @@ class App(ctk.CTk):
 			self.current_screen.pack_forget()
 		self.current_screen = self.gas_screen
 		self.current_screen.pack(fill=ctk.BOTH, expand=True)
+
+		asyncio.create_task(self.red_callback())
 
 	def show_report_screen(self):
 		"""신고 접수 완료 화면으로 전환"""
@@ -100,7 +104,7 @@ class App(ctk.CTk):
 			# 예 버튼 (취소 확정 시 대기화면으로 돌아감)
 			ctk.CTkButton(button_frame,
 						  text="예",
-						  command=self.show_standby_screen,
+						  command=lambda : [asyncio.create_task(self.off_callback()),self.show_standby_screen()],
 						  width=200, height=100,
 						  font=("Helvetica", 24, "bold")).pack(side=ctk.LEFT, padx=10)
 
@@ -110,6 +114,7 @@ class App(ctk.CTk):
 						  command=lambda: [self.restore_previous_emergency()],
 						  width=200, height=100,
 						  font=("Helvetica", 24,"bold")).pack(side=ctk.RIGHT, padx=10)
+
 
 	def restore_previous_emergency(self):
 		"""긴급 상황 화면으로 복귀"""
@@ -146,8 +151,10 @@ class App(ctk.CTk):
 		if self.current_screen:
 			self.current_screen.pack_forget()
 		self.current_screen = self.doorlock_cam_screen
+		
 		self.current_screen.pack(fill=ctk.BOTH, expand=True)
-	
+		
+		asyncio.create_task(self.yellow_callback())
 		# 도어락 캠 스트리밍 시작
 		self.doorlock_cam_screen.start_streaming()
 	async def tkinter_event_loop(self):

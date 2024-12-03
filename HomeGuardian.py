@@ -22,10 +22,15 @@ async def main():
 	# keyboard.on_press_key("esc", lambda _: stop_soundProcess(loop))
 	server_socket, port = brt.create_server_socket()
 	client_socket, address = await wait_for_client_connection(server_socket)
-	fire_callback = create_fire_callback(client_socket)
+	red_callback = create_red_callback(client_socket)
+	yellow_callback = create_yellow_callback(client_socket)
+	off_callback = create_off_callback(client_socket)
+	
 	app = ui.App(stop_callback=stop_soundProcess,
 			loop=loop,
-			fire_callback= fire_callback
+			red_callback= red_callback,
+			yellow_callback= yellow_callback,
+			off_callback= off_callback
 			)
 	
 	try:
@@ -42,12 +47,11 @@ async def main():
 		brt.close_server_socket(server_socket)
 
 
-def create_fire_callback(client_socket):
+def create_red_callback(client_socket):
 	"""
 	비동기 `send_bluetooth_fire`를 동기 콜백처럼 사용할 수 있는 래퍼를 반환합니다.
 	"""
-	async def fire_callback():
-		print("fire callback:")
+	async def red_callback():
 		if client_socket:
 			try:
 				await brt.handle_client_communication(client_socket,"RED")
@@ -55,26 +59,35 @@ def create_fire_callback(client_socket):
 				print(f"Error while sending Bluetooth fire signal: {e}")
 		else:
 			print("Client socket is not connected.")
-	return fire_callback
+	return red_callback
 
-async def try_accept_client_connection(server_socket, retry_interval=5):
+def create_yellow_callback(client_socket):
 	"""
-	블루투스 클라이언트 연결을 지속적으로 시도합니다.
-	:param server_socket: 서버 소켓 객체
-	:param retry_interval: 연결 시도 간 간격 (초 단위)
-	:return: 연결된 클라이언트 소켓과 주소
+	비동기 `send_bluetooth_fire`를 동기 콜백처럼 사용할 수 있는 래퍼를 반환합니다.
 	"""
-	print("Waiting for a client to connect...")
-	while True:
-		try:
-			client_socket, address = await brt.accept_client_connection(server_socket)
-			print(f"Client connected from {address}")
-			return client_socket, address  # 연결 성공 시 반환
-		except asyncio.TimeoutError:
-			print(f"No connection. Retrying in {retry_interval} seconds...")
-		except Exception as e:
-			print(f"Error during connection attempt: {e}")
-		await asyncio.sleep(retry_interval)  # 지정된 시간 대기 후 다시 시도
+	async def yellow_callback():
+		if client_socket:
+			try:
+				await brt.handle_client_communication(client_socket,"YELLOW")
+			except Exception as e:
+				print(f"Error while sending Bluetooth fire signal: {e}")
+		else:
+			print("Client socket is not connected.")
+	return yellow_callback
+
+def create_off_callback(client_socket):
+	"""
+	비동기 `send_bluetooth_fire`를 동기 콜백처럼 사용할 수 있는 래퍼를 반환합니다.
+	"""
+	async def off_callback():
+		if client_socket:
+			try:
+				await brt.handle_client_communication(client_socket,"OFF")
+			except Exception as e:
+				print(f"Error while sending Bluetooth fire signal: {e}")
+		else:
+			print("Client socket is not connected.")
+	return off_callback
 
 async def wait_for_client_connection(server_socket):
 	"""
