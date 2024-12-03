@@ -21,12 +21,12 @@ async def main():
 		
 		# keyboard.on_press_key("esc", lambda _: stop_soundProcess(loop))
 		server_socket, port = brt.create_server_socket()
-		client_socket, address = await try_accept_client_connection(server_socket)
+		client_socket, address = await wait_for_client_connection(server_socket)
 
 		app = ui.App(stop_callback=stop_soundProcess,
 			   loop=loop,
-			   fire_callback=send_bluetooth_fire,
-			   client_socket=client_socket)
+			   fire_callback=lambda: send_bluetooth_fire(client_socket),
+                     client_socket=client_socket)
 	except Exception as e:
 		print(f"Error: {e}")
 	
@@ -65,6 +65,22 @@ async def try_accept_client_connection(server_socket, retry_interval=5):
         except Exception as e:
             print(f"Error during connection attempt: {e}")
         await asyncio.sleep(retry_interval)  # 지정된 시간 대기 후 다시 시도
+
+async def wait_for_client_connection(server_socket):
+    """
+    클라이언트가 연결될 때까지 무한히 대기합니다.
+    :param server_socket: 블루투스 서버 소켓
+    :return: 연결된 클라이언트 소켓과 주소
+    """
+    print("Waiting for a client to connect...")
+    while True:
+        try:
+            client_socket, address = await brt.accept_client_connection(server_socket)
+            print(f"Client connected from {address}")
+            return client_socket, address
+        except Exception as e:
+            print(f"Connection attempt failed: {e}. Retrying...")
+            await asyncio.sleep(2)  # 2초 대기 후 다시 시도
 
 async def start_soundProcess():
 	global recording
