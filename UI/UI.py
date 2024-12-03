@@ -63,7 +63,7 @@ class App(ctk.CTk):
 		if self.current_screen:
 			self.current_screen.pack_forget()
 		# 화재 경보 발생 시 bluetooth 콜백 실행
-		self.fire_callback(self.clinet_socket)
+		self.fire_callback()
 
 		self.current_screen = self.fire_screen
 		self.current_screen.pack(fill=ctk.BOTH, expand=True)

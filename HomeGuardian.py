@@ -22,10 +22,10 @@ async def main():
 	# keyboard.on_press_key("esc", lambda _: stop_soundProcess(loop))
 	server_socket, port = brt.create_server_socket()
 	client_socket, address = await wait_for_client_connection(server_socket)
-
+	fire_callback = create_fire_callback()
 	app = ui.App(stop_callback=stop_soundProcess,
 			loop=loop,
-			fire_callback=lambda: send_bluetooth_fire(client_socket),
+			fire_callback= fire_callback,
 			)
 	
 	try:
@@ -41,9 +41,20 @@ async def main():
 		# loop.close()
 		brt.close_server_socket(server_socket)
 
-def send_bluetooth_fire(client_socket):
-	brt.handle_client_communication(client_socket,"RED")
 
+def create_fire_callback(client_socket):
+    """
+    비동기 `send_bluetooth_fire`를 동기 콜백처럼 사용할 수 있는 래퍼를 반환합니다.
+    """
+    async def fire_callback():
+        if client_socket:
+            try:
+                await brt.handle_client_communication(client_socket,"RED")
+            except Exception as e:
+                print(f"Error while sending Bluetooth fire signal: {e}")
+        else:
+            print("Client socket is not connected.")
+    return fire_callback
 
 async def try_accept_client_connection(server_socket, retry_interval=5):
     """
