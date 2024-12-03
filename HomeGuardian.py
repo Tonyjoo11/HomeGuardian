@@ -7,6 +7,8 @@ import os
 import sounddevice as sd
 import asyncio
 import keyboard
+import BluetoothRaspTest as brt
+
 recording=True
 async def main():
 	print("Welcome To HomeGuardian")
@@ -17,9 +19,14 @@ async def main():
 
 		sound_task = asyncio.create_task(start_soundProcess())	
 		
-		app = ui.App(stop_callback=stop_soundProcess,loop=loop)
 		keyboard.on_press_key("esc", lambda _: stop_soundProcess(loop))
-	
+		server_socket, port = brt.create_server_socket()
+		client_socket, address = await brt.accept_client_connection(server_socket)
+
+		app = ui.App(stop_callback=stop_soundProcess,
+			   loop=loop,
+			   fire_callback=send_bluetooth_fire,
+			   client_socket=client_socket)
 	except Exception as e:
 		print(f"Error: {e}")
 	
@@ -34,6 +41,10 @@ async def main():
 		print(f"Error:{e}")
 	finally:
 		loop.close()
+		brt.close_server_socket(server_socket)
+
+def send_bluetooth_fire(client_socket):
+	brt.handle_client_communication(client_socket,"RED")
 
 
 

@@ -1,44 +1,68 @@
-import bluetooth
-from bleak import BleakClient
 import asyncio
-# 블루투스 서버 주소 (라즈베리파이 MAC 주소 입력)
-server_mac_address = "2C:CF:67:12:22:8E"
-port = 1  # RFCOMM 기본 포트
-DEVICE_MAC_ADDRESS = "CE:04:78:05:29:87"  # 아두이노의 BLE MAC 주소
-SERVICE_UUID = "6f742e01-ec6e-4621-a0db-7511cc6c46ad"  # 아두이노 서비스 UUID
-CHARACTERISTIC_UUID = "00000000-0000-0000-0000-000000000000"  # 특성 UUID
-RECONNECT_DELAY = 5
+import bluetooth
+from concurrent.futures import ThreadPoolExecutor
 
-# 블루투스 소켓 생성 및 연결
+def create_server_socket():
+    """
+    블루투스 서버 소켓을 생성하고 리턴합니다.
+    """
+    server_socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+    server_socket.bind(("", bluetooth.PORT_ANY))
+    server_socket.listen(1)
+    port = server_socket.getsockname()[1]
+    print(f"Listening for connections on port {port}")
+    return server_socket, port
 
-async def write_data_to_peripheral(data_to_write,client):
-    # Peripheral에 연결
-	# print(f"Connected to device at {DEVICE_MAC_ADDRESS}")
+async def accept_client_connection(server_socket):
+    """
+    클라이언트 연결을 비동기적으로 수락합니다.
+    """
+    loop = asyncio.get_event_loop()
+    with ThreadPoolExecutor() as executor:
+        client_socket, address = await loop.run_in_executor(executor, server_socket.accept)
+    print(f"Accepted connection from {address}")
+    return client_socket, address
 
-	# 데이터 쓰기
-	# data_to_write = input()  # 아두이노에 보낼 데이터
-	await client.write_gatt_char(CHARACTERISTIC_UUID, data_to_write.encode("utf-8"))
-	print(f"Data sent: {data_to_write}")
+async def handle_client_communication(client_socket, message):
+    """
+    클라이언트와 비동기적으로 통신하며 매개변수로 받은 메시지를 전송합니다.
+    """
+    try:
+        loop = asyncio.get_event_loop()
+        with ThreadPoolExecutor() as executor:
+            # 클라이언트로부터 데이터 수신
+            data = await loop.run_in_executor(executor, client_socket.recv, 1024)
+            if data:
+                print(f"Received: {data.decode('utf-8')}")
+
+            # 메시지 전송
+            await loop.run_in_executor(executor, client_socket.send, message.encode('utf-8'))
+            print(f"Sent: {message}")
+    except Exception as e:
+        print(f"Error during communication: {e}")
+    finally:
+        client_socket.close()
+
+def close_server_socket(server_socket):
+    """
+    서버 소켓을 닫습니다.
+    """
+    server_socket.close()
+    print("Server socket closed.")
+
 async def main():
-	client_socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-	client_socket.connect((server_mac_address, port))
-	print(f"Connected to {server_mac_address}")
-	while True:
-		try:
-			# 데이터 전송
-			message = "ACK"
-			client_socket.send(message.encode('utf-8'))
-			print(f"Sent: {message}")
+    """
+    비동기 블루투스 서버 실행을 위한 메인 함수입니다.
+    """
+    server_socket, port = create_server_socket()
+    try:
+        client_socket, address = await accept_client_connection(server_socket)
+        message = input("Enter a message to send to the client: ")
+        await handle_client_communication(client_socket, message)
+    except KeyboardInterrupt:
+        print("\nServer shutting down.")
+    finally:
+        close_server_socket(server_socket)
 
-			# 서버로부터 응답 수신
-			response = client_socket.recv(1024)
-			print(f"Received: {response.decode('utf-8')}")
-			async with BleakClient(DEVICE_MAC_ADDRESS) as client:
-				await write_data_to_peripheral(str(response.decode('utf-8')),client)
-		except KeyboardInterrupt:
-			break
-
-
-	client_socket.close()
-
-asyncio.run(main())
+# if __name__ == "__main__":
+    # asyncio.run(main())

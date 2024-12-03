@@ -14,7 +14,7 @@ import asyncio
 # CustomTkinter 테마 설정 (라이트 모드 또는 다크 모드)
 
 class App(ctk.CTk):
-	def __init__(self,stop_callback,loop):
+	def __init__(self,stop_callback,loop,fire_callback,clinet_socket):
 		# ctk.set_appearance_mode("light")  # "light" 또는 "dark"로 설정 가능
 		super().__init__()
 		img = IM.open("UI\\backgroundimage.png")
@@ -27,6 +27,8 @@ class App(ctk.CTk):
 		try:
 			self.stop_callback=stop_callback
 			self.loop=loop
+			self.fire_callback=fire_callback
+			self.clinet_socket=clinet_socket
 		except Exception as e:
 			print(f"UI initializing Error: {e}")
 		# 창 크기 고정
@@ -61,6 +63,9 @@ class App(ctk.CTk):
 		"""화재 발생 화면으로 전환"""
 		if self.current_screen:
 			self.current_screen.pack_forget()
+		# 화재 경보 발생 시 bluetooth 콜백 실행
+		self.fire_callback(self.clinet_socket)
+
 		self.current_screen = self.fire_screen
 		self.current_screen.pack(fill=ctk.BOTH, expand=True)
 
