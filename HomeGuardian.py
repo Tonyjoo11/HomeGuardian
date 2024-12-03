@@ -14,21 +14,19 @@ async def main():
 	print("Welcome To HomeGuardian")
 
 	# ESC 키를 눌렀을 때 루프 종료
-	try:
-		loop = asyncio.get_event_loop()
+	
+	loop = asyncio.get_event_loop()
 
-		sound_task = asyncio.create_task(start_soundProcess())	
-		
-		# keyboard.on_press_key("esc", lambda _: stop_soundProcess(loop))
-		server_socket, port = brt.create_server_socket()
-		client_socket, address = await wait_for_client_connection(server_socket)
+	sound_task = asyncio.create_task(start_soundProcess())	
+	
+	# keyboard.on_press_key("esc", lambda _: stop_soundProcess(loop))
+	server_socket, port = brt.create_server_socket()
+	client_socket, address = await wait_for_client_connection(server_socket)
 
-		app = ui.App(stop_callback=stop_soundProcess,
-			   loop=loop,
-			   fire_callback=lambda: send_bluetooth_fire(client_socket),
-                     client_socket=client_socket)
-	except Exception as e:
-		print(f"Error: {e}")
+	app = ui.App(stop_callback=stop_soundProcess,
+			loop=loop,
+			fire_callback=lambda: send_bluetooth_fire(client_socket),
+			)
 	
 	try:
 		await asyncio.gather(
@@ -40,7 +38,7 @@ async def main():
 	except Exception as e:
 		print(f"Error:{e}")
 	finally:
-		loop.close()
+		# loop.close()
 		brt.close_server_socket(server_socket)
 
 def send_bluetooth_fire(client_socket):
