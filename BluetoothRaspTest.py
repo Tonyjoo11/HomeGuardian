@@ -40,9 +40,7 @@ async def handle_client_communication(client_socket, message):
             print(f"Sent: {message}")
     except Exception as e:
         print(f"Error during communication: {e}")
-    finally:
-        client_socket.close()
-
+        
 def close_server_socket(server_socket):
     """
     서버 소켓을 닫습니다.

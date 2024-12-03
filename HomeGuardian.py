@@ -25,7 +25,7 @@ async def main():
 	fire_callback = create_fire_callback(client_socket)
 	app = ui.App(stop_callback=stop_soundProcess,
 			loop=loop,
-			fire_callback= fire_callback,
+			fire_callback= fire_callback
 			)
 	
 	try:
