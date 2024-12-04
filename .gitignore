@@ -15,3 +15,6 @@ dataset.zip
 unbalanced_train_segments_2.csv
 balanced_train_segments_2.csv
 UI/backgroundimage.png
+dist
+build
+HomeGuardian.spec
