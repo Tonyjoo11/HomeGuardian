@@ -25,7 +25,6 @@ class App(ctk.CTk):
 		
 		# UI 종료 시에 호출하는 콜백
 		try:
-			self.stop_callback=stop_callback
 			self.loop=loop
 			self.red_callback=red_callback
 			self.yellow_callback=yellow_callback
@@ -170,7 +169,6 @@ class App(ctk.CTk):
 				self.doorlock_cam_screen.on_closing()
 			self.running=False
 			print("closing UI...")
-			self.stop_callback(self.loop)
 			self.destroy()
 
 class StandbyScreen(ctk.CTkFrame):

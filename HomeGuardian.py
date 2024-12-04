@@ -28,7 +28,6 @@ async def main():
 
 	# UI 앱 초기화
 	app = ui.App(
-		stop_callback=stop_soundProcess,
 		loop=loop,
 		red_callback=red_callback,
 		yellow_callback=yellow_callback,
@@ -68,8 +67,10 @@ async def run_model_predictions(model):
 			await model.update_predictions()
 			predictions = model.get_current_predictions()
 			print("현재 예측값:", predictions)
-			if predictions['Class 2']>0.9:
+			if 'Class 2' in predictions and predictions['Class 2']>0.95:
 				raise_fireAlarm()
+			if 'Class 3' in predictions and predictions['Class 3']>0.95:
+				raise_doorbell()
 			# 예측 결과에 따른 추가 로직을 여기에 추가할 수 있습니다.
 	except asyncio.CancelledError:
 		# 태스크가 취소될 때의 처리
@@ -123,6 +124,9 @@ def raise_fireAlarm():
 	global app
 	app.show_fire_screen()
 
+def raise_doorbell():
+	global app
+	app.show_doorlock_cam_screen()
 # def stop_soundProcess():
 	# 필요한 경우 사운드 처리 중지를 위한 로직을 추가하세요.
 	# pass
