@@ -59,6 +59,12 @@
 			}
 
 			try {
+				console.log("AudioContext 상태:", recognizer.audioContext.state);
+
+				if (recognizer.audioContext.state === 'suspended') {
+					await recognizer.audioContext.resume();
+					console.log("AudioContext를 resume했습니다.");
+				}
 				recognizer.listen(result => {
 					try{
 						// 예측 결과 처리
