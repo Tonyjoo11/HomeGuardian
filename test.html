@@ -24,7 +24,10 @@
                 "BROWSER_FFT",
                 undefined,
                 checkpointURL,
-                metadataURL
+                metadataURL,
+				{
+                	sampleRateHertz: 48000 // 샘플 레이트를 48000Hz로 설정
+            	}
             );
 
             await recognizer.ensureModelLoaded();

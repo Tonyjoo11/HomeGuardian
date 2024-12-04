@@ -14,7 +14,7 @@ import asyncio
 # CustomTkinter 테마 설정 (라이트 모드 또는 다크 모드)
 
 class App(ctk.CTk):
-	def __init__(self,stop_callback,loop,red_callback,yellow_callback,off_callback):
+	def __init__(self,loop,red_callback,yellow_callback,off_callback):
 		# ctk.set_appearance_mode("light")  # "light" 또는 "dark"로 설정 가능
 		super().__init__()
 		# img = IM.open("UI\\backgroundimage.png")
