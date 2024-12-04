@@ -1,82 +1,87 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Teachable Machine Audio Model</title>
+	<title>Teachable Machine Audio Model</title>
 </head>
 <body>
-    <div>Teachable Machine Audio Model</div>
-    <button type="button" onclick="init()">Start</button>
-    <div id="label-container"></div>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.0/dist/speech-commands.min.js"></script>
-    
-    <script type="text/javascript">
-        // 전역 변수로 선언
-        let recognizer;
+	<div>Teachable Machine Audio Model</div>
+	<button type="button" onclick="init()">Start</button>
+	<div id="label-container"></div>
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.0/dist/speech-commands.min.js"></script>
+	
+	<script type="text/javascript">
+		// 전역 변수로 선언
+		let recognizer;
 
-        const URL = "https://teachablemachine.withgoogle.com/models/gPsGck872/";
-        // const URL = "./model/";
+		const URL = "https://teachablemachine.withgoogle.com/models/gPsGck872/";
+		// const URL = "./model/";
 
-        async function createModel() {
-            console.log("createModel: 모델 생성 시작");
-            const checkpointURL = URL + "model.json"; 
-            const metadataURL = URL + "metadata.json"; 
-            console.log("createModel: checkpointURL =", checkpointURL);
-            console.log("createModel: metadataURL =", metadataURL);
+		async function createModel() {
+			console.log("createModel: 모델 생성 시작");
+			const checkpointURL = URL + "model.json"; 
+			const metadataURL = URL + "metadata.json"; 
+			console.log("createModel: checkpointURL =", checkpointURL);
+			console.log("createModel: metadataURL =", metadataURL);
 
-            try {
-                recognizer = speechCommands.create(
-                    "BROWSER_FFT",
-                    undefined,
-                    checkpointURL,
-                    metadataURL
-                );
+			try {
+				recognizer = speechCommands.create(
+					"BROWSER_FFT",
+					undefined,
+					checkpointURL,
+					metadataURL,
 
-                await recognizer.ensureModelLoaded();
-                console.log("createModel: 모델이 성공적으로 로드되었습니다.");
-                console.log("createModel: AudioContext 샘플 레이트 =", recognizer.audioContext.sampleRate);
-            } catch (error) {
-                console.error("createModel: 모델 로딩 중 오류 발생:", error);
-            }
-        }
+				);
 
-        async function init() {
-            console.log("init: 초기화 시작");
-            await createModel();
+				await recognizer.ensureModelLoaded();
+				console.log("createModel: 모델이 성공적으로 로드되었습니다.");
+				console.log("createModel: AudioContext 샘플 레이트 =", recognizer.audioContext.sampleRate);
+			} catch (error) {
+				console.error("createModel: 모델 로딩 중 오류 발생:", error);
+			}
+		}
 
-            if (!recognizer) {
-                console.error("init: recognizer가 정의되지 않았습니다.");
-                return;
-            }
+		async function init() {
+			console.log("init: 초기화 시작");
+			await createModel();
 
-            const classLabels = recognizer.wordLabels(); 
-            console.log("init: classLabels =", classLabels);
+			if (!recognizer) {
+				console.error("init: recognizer가 정의되지 않았습니다.");
+				return;
+			}
 
-            const labelContainer = document.getElementById("label-container");
-            for (let i = 0; i < classLabels.length; i++) {
-                labelContainer.appendChild(document.createElement("div"));
-            }
+			const classLabels = recognizer.wordLabels(); 
+			console.log("init: classLabels =", classLabels);
 
-            try {
-                recognizer.listen(result => {
-                    // 예측 결과 처리
-                    const scores = result.scores;
-                    console.log("recognizer.listen: scores =", scores);
-                    for (let i = 0; i < classLabels.length; i++) {
-                        const classPrediction = classLabels[i] + ": " + result.scores[i].toFixed(2);
-                        labelContainer.childNodes[i].innerHTML = classPrediction;
-                    }
-                }, {
-                    includeSpectrogram: true,
-                    probabilityThreshold: 0.75,
-                    invokeCallbackOnNoiseAndUnknown: true,
-                    overlapFactor: 0.50
-                });
-                console.log("init: recognizer.listen 시작됨");
-            } catch (error) {
-                console.error("init: recognizer.listen 시작 중 오류 발생:", error);
-            }
-        }
-    </script>
+			const labelContainer = document.getElementById("label-container");
+			for (let i = 0; i < classLabels.length; i++) {
+				labelContainer.appendChild(document.createElement("div"));
+			}
+
+			try {
+				recognizer.listen(result => {
+					try{
+						// 예측 결과 처리
+						const scores = result.scores;
+						console.log("recognizer.listen: scores =", scores);
+						for (let i = 0; i < classLabels.length; i++) {
+							const classPrediction = classLabels[i] + ": " + result.scores[i].toFixed(2);
+							labelContainer.childNodes[i].innerHTML = classPrediction;
+						}
+					} catch (error){
+						console.error("recognizer.listen 콜백 함수 내에서 오류 발생:", error);
+					}
+				}, {
+					includeSpectrogram: true,
+					probabilityThreshold: 0.75,
+					invokeCallbackOnNoiseAndUnknown: true,
+					overlapFactor: 0.50
+				});
+				console.log("init: recognizer.listen 시작됨");
+			} catch (error) {
+				console.error("init: recognizer.listen 시작 중 오류 발생:", error);
+			}
+		}
+	</script>
 </body>
 </html>
