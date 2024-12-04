@@ -29,7 +29,12 @@
 					"BROWSER_FFT",
 					undefined,
 					checkpointURL,
-					metadataURL
+					metadataURL,
+					{
+						audioConfig: {
+							sampleRateHz: 48000 // 마이크의 샘플 레이트에 맞게 설정
+						}
+					}
 				);
 
 				await recognizer.ensureModelLoaded();
@@ -75,6 +80,8 @@
 				recognizer.listen(result => {
 					try{
 						// 예측 결과 처리
+						console.log("콜백 함수가 실행되었습니다.");
+
 						const scores = result.scores;
 						console.log("recognizer.listen: scores =", scores);
 						for (let i = 0; i < classLabels.length; i++) {
@@ -86,7 +93,7 @@
 					}
 				}, {
 					includeSpectrogram: true,
-					probabilityThreshold: 0.75,
+					// probabilityThreshold: 0.75,
 					invokeCallbackOnNoiseAndUnknown: true,
 					overlapFactor: 0.50
 				});
