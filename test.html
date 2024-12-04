@@ -14,7 +14,7 @@
 		// 전역 변수로 선언
 		let recognizer;
 
-		const URL = "https://teachablemachine.withgoogle.com/models/gPsGck872/";
+		const URL = "https://teachablemachine.withgoogle.com/models/oMUQvf95p/";
 		// const URL = "./model/";
 
 		async function createModel() {
@@ -29,8 +29,7 @@
 					"BROWSER_FFT",
 					undefined,
 					checkpointURL,
-					metadataURL,
-
+					metadataURL
 				);
 
 				await recognizer.ensureModelLoaded();
@@ -59,12 +58,20 @@
 			}
 
 			try {
-				console.log("AudioContext 상태:", recognizer.audioContext.state);
+				if (!recognizer.audioContext) {
+					console.warn("audioContext가 정의되지 않았습니다. 새 AudioContext를 생성합니다.");
+					recognizer.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+					console.log("새 AudioContext가 생성되었습니다:", recognizer.audioContext);
+				}
 
+				console.log("AudioContext 상태:", recognizer.audioContext.state);
+				
 				if (recognizer.audioContext.state === 'suspended') {
 					await recognizer.audioContext.resume();
 					console.log("AudioContext를 resume했습니다.");
 				}
+				
+				
 				recognizer.listen(result => {
 					try{
 						// 예측 결과 처리
