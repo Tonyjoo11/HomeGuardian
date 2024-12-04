@@ -38,7 +38,21 @@
 				);
 
 				await recognizer.ensureModelLoaded();
+
+				
+				if (!recognizer.audioContext) {
+					console.warn("audioContext가 정의되지 않았습니다. 새 AudioContext를 생성합니다.");
+					recognizer.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+					console.log("새 AudioContext가 생성되었습니다:", recognizer.audioContext);
+				}
 				console.log("createModel: 모델이 성공적으로 로드되었습니다.");
+				console.log("AudioContext 상태:", recognizer.audioContext.state);
+				
+				if (recognizer.audioContext.state === 'suspended') {
+					await recognizer.audioContext.resume();
+					console.log("AudioContext를 resume했습니다.");
+				}
+
 				console.log("createModel: AudioContext 샘플 레이트 =", recognizer.audioContext.sampleRate);
 			} catch (error) {
 				console.error("createModel: 모델 로딩 중 오류 발생:", error);
@@ -83,18 +97,8 @@
 					invokeCallbackOnNoiseAndUnknown: true,
 					overlapFactor: 0.50
 				});
-				if (!recognizer.audioContext) {
-					console.warn("audioContext가 정의되지 않았습니다. 새 AudioContext를 생성합니다.");
-					recognizer.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-					console.log("새 AudioContext가 생성되었습니다:", recognizer.audioContext);
-				}
 
-				console.log("AudioContext 상태:", recognizer.audioContext.state);
 				
-				if (recognizer.audioContext.state === 'suspended') {
-					await recognizer.audioContext.resume();
-					console.log("AudioContext를 resume했습니다.");
-				}
 				
 				
 				
