@@ -63,20 +63,6 @@
 			}
 
 			try {
-				if (!recognizer.audioContext) {
-					console.warn("audioContext가 정의되지 않았습니다. 새 AudioContext를 생성합니다.");
-					recognizer.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-					console.log("새 AudioContext가 생성되었습니다:", recognizer.audioContext);
-				}
-
-				console.log("AudioContext 상태:", recognizer.audioContext.state);
-				
-				if (recognizer.audioContext.state === 'suspended') {
-					await recognizer.audioContext.resume();
-					console.log("AudioContext를 resume했습니다.");
-				}
-				
-				
 				recognizer.listen(result => {
 					try{
 						// 예측 결과 처리
@@ -97,6 +83,21 @@
 					invokeCallbackOnNoiseAndUnknown: true,
 					overlapFactor: 0.50
 				});
+				if (!recognizer.audioContext) {
+					console.warn("audioContext가 정의되지 않았습니다. 새 AudioContext를 생성합니다.");
+					recognizer.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+					console.log("새 AudioContext가 생성되었습니다:", recognizer.audioContext);
+				}
+
+				console.log("AudioContext 상태:", recognizer.audioContext.state);
+				
+				if (recognizer.audioContext.state === 'suspended') {
+					await recognizer.audioContext.resume();
+					console.log("AudioContext를 resume했습니다.");
+				}
+				
+				
+				
 				console.log("init: recognizer.listen 시작됨");
 			} catch (error) {
 				console.error("init: recognizer.listen 시작 중 오류 발생:", error);
