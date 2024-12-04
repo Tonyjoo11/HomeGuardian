@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teachable Machine Audio Model</title>
+</head>
+<body>
+    <div>Teachable Machine Audio Model</div>
+    <button type="button" onclick="init()">Start</button>
+    <div id="label-container"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.0/dist/speech-commands.min.js"></script>
+    
+    <script type="text/javascript">
+        // 전역 변수로 선언
+        let recognizer;
+
+        const URL = "https://teachablemachine.withgoogle.com/models/Fu81ABjws/";
+
+        async function createModel() {
+            const checkpointURL = URL + "model.json"; 
+            const metadataURL = URL + "metadata.json"; 
+
+            recognizer = speechCommands.create(
+                "BROWSER_FFT",
+                undefined,
+                checkpointURL,
+                metadataURL
+            );
+
+            await recognizer.ensureModelLoaded();
+        }
+
+        async function init() {
+            await createModel();
+            const classLabels = recognizer.wordLabels(); 
+            const labelContainer = document.getElementById("label-container");
+            for (let i = 0; i < classLabels.length; i++) {
+                labelContainer.appendChild(document.createElement("div"));
+            }
+
+            recognizer.listen(result => {
+                const scores = result.scores;
+                for (let i = 0; i < classLabels.length; i++) {
+                    const classPrediction = classLabels[i] + ": " + result.scores[i].toFixed(2);
+                    labelContainer.childNodes[i].innerHTML = classPrediction;
+                }
+            }, {
+                includeSpectrogram: true,
+                probabilityThreshold: 0.75,
+                invokeCallbackOnNoiseAndUnknown: true,
+                overlapFactor: 0.50
+            });
+        }
+    </script>
+</body>
+</html>
