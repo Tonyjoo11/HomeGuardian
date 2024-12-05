@@ -120,13 +120,11 @@ class App(ctk.CTk):
 	def cancel_confirmed(self):
 		
 		for widget in self.current_screen.winfo_children():
-				widget.destroy() ,self.show_standby_screen()
+				widget.pack_forget()
 
 		asyncio.create_task(self.off_callback())
 		self.show_standby_screen()
-	def destroy_cancel(self):
-		for widget in self.current_screen.winfo_children():
-				widget.destroy() ,self.show_standby_screen()
+
 	def restore_previous_emergency(self):
 		"""긴급 상황 화면으로 복귀"""
 		# 현재 신고 취소 확인 관련 UI 모두 삭제
