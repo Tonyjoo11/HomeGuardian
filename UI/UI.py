@@ -54,6 +54,7 @@ class App(ctk.CTk):
 
 	def show_standby_screen(self):
 		"""대기 화면으로 전환"""
+		
 		if self.current_screen:
 			self.current_screen.pack_forget()
 		self.current_screen = self.standby_screen
@@ -82,7 +83,10 @@ class App(ctk.CTk):
 		"""신고 접수 완료 화면으로 전환"""
 		if self.current_screen:
 			self.current_screen.pack_forget()
+		if not self.report_screen.winfo_exists:
+			self.report_screen = ReportScreen(self, self.show_standby_screen)
 		self.current_screen = self.report_screen
+		
 		self.current_screen.pack(fill=ctk.BOTH, expand=True)
 
 	def show_cancel_confirmation(self):
@@ -114,7 +118,9 @@ class App(ctk.CTk):
 						  width=200, height=100,
 						  font=("Helvetica", 24,"bold")).pack(side=ctk.RIGHT, padx=10)
 
-
+	def destroy_cancel(self):
+		for widget in self.current_screen.winfo_children():
+				widget.destroy() ,self.show_standby_screen()
 	def restore_previous_emergency(self):
 		"""긴급 상황 화면으로 복귀"""
 		# 현재 신고 취소 확인 관련 UI 모두 삭제
@@ -259,13 +265,14 @@ class ReportScreen(ctk.CTkFrame):
 						font=("Helvetica", 24, "bold")).pack(pady=20)
 
 class DoorlockCamScreen(ctk.CTkFrame):
-	def __init__(self, master, width, height):
+	def __init__(self, master, width, height,off_callback):
 		super().__init__(master)
+		self.off_callback=off_callback
 		self.width, self.height = width,height
 		self.master.geometry(f"{self.width}x{self.height}")
 		
 		# wi-fi 변경 시마다 주소 갱신 필요
-		self.url = "http://192.168.45.203:81/stream"
+		self.url = "http://192.168.255.203:81/stream"
 		self.stream = None
 		self.buffer = b''
 		
@@ -276,7 +283,7 @@ class DoorlockCamScreen(ctk.CTkFrame):
 		# 뒤로가기 버튼
 		self.back_button = ctk.CTkButton(self, text="뒤로가기", 
 								   	   font=("Helvetica", 24, "bold"),
-									   command=self.go_back,
+									   command=lambda: [self.go_back()],
 									   width=200, height=80)
 		self.back_button.place(x=300, y=350)
 	
@@ -317,17 +324,31 @@ class DoorlockCamScreen(ctk.CTkFrame):
 						frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 						image = IM.fromarray(frame)
 						photo = IMK.PhotoImage(image=image)
+						if not self.canvas.winfo_exists():
+							self.canvas = ctk. CTkCanvas(self, width=640, height= 480)
+							self.canvas.pack()
+						if not self.back_button.winfo_exists():
+							self.back_button = ctk.CTkButton(self, text="뒤로가기", 
+								   	   font=("Helvetica", 24, "bold"),
+									   command=lambda: [self.go_back()],
+									   width=200, height=80)
+							self.back_button.place(x=300, y=350)
 						self.canvas.create_image(0, 0, image=photo, anchor='nw')
 						self.canvas.image = photo
 			
 			self.after(10, self.update)
 		except Exception as e:
 			print(f"스트리밍 업데이트 오류: {e}")
+			raise
 	
 	def go_back(self):
 		if self.stream:
 			self.stream.close()
+		# if self.canvas:
+		# 	print("destroying canvas")
+		# 	self.canvas.destroy()
 		self.master.show_standby_screen()
+		asyncio.create_task(self.off_callback())
 	
 	def on_closing(self):
 		if self.stream:

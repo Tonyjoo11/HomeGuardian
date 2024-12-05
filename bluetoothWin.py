@@ -5,7 +5,7 @@ from bleak import BleakClient, BleakError
 # BLE 장치의 MAC 주소와 Characteristic UUID
 BLE_MAC_ADDRESS = "CE:04:78:05:29:87"  # BLE 장치 MAC 주소
 CHARACTERISTIC_UUID = "00000000-0000-0000-0000-000000000000"  # BLE 특성 UUID
-server_mac_address = "2C:CF:67:12:22:8E" #2C:CF:67:12:22:8E 9C:B6:D0:FE:84:5B
+server_mac_address = "2C:CF:67:12:22:8E" #9C:B6:D0:FE:84:5B
 port = 1  # RFCOMM 기본 포트
 
 class BLEManager:
