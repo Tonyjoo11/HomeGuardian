@@ -47,7 +47,7 @@ class App(ctk.CTk):
 		self.fire_screen = EmergencyScreen(self, "화재가 발생했습니다!", self.show_standby_screen)
 		self.gas_screen = EmergencyScreen(self, "가스가 누출되었습니다!", self.show_standby_screen)
 		self.report_screen = ReportScreen(self, self.show_standby_screen)
-		self.doorlock_cam_screen = DoorlockCamScreen(self,self.width,self.height)
+		self.doorlock_cam_screen = DoorlockCamScreen(self,self.width,self.height,self.off_callback)
 		
 		# 대기 화면으로 시작
 		self.show_standby_screen()
@@ -107,7 +107,7 @@ class App(ctk.CTk):
 			# 예 버튼 (취소 확정 시 대기화면으로 돌아감)
 			ctk.CTkButton(button_frame,
 						  text="예",
-						  command=lambda : [asyncio.create_task(self.off_callback()),self.show_standby_screen()],
+						  command=self.cancel_confirmed(),
 						  width=200, height=100,
 						  font=("Helvetica", 24, "bold")).pack(side=ctk.LEFT, padx=10)
 
@@ -117,7 +117,13 @@ class App(ctk.CTk):
 						  command=lambda: [self.restore_previous_emergency()],
 						  width=200, height=100,
 						  font=("Helvetica", 24,"bold")).pack(side=ctk.RIGHT, padx=10)
+	def cancel_confirmed(self):
+		
+		for widget in self.current_screen.winfo_children():
+				widget.destroy() ,self.show_standby_screen()
 
+		asyncio.create_task(self.off_callback())
+		self.show_standby_screen()
 	def destroy_cancel(self):
 		for widget in self.current_screen.winfo_children():
 				widget.destroy() ,self.show_standby_screen()
