@@ -69,7 +69,7 @@ async def run_model_predictions(model):
 			print("현재 예측값:", predictions)
 			if 'Class 2' in predictions and predictions['Class 2']>0.95:
 				raise_fireAlarm()
-			if 'Class 3' in predictions and predictions['Class 3']>0.95:
+			if 'Class 3' in predictions and predictions['Class 3']>0.97:
 				raise_doorbell()
 			# 예측 결과에 따른 추가 로직을 여기에 추가할 수 있습니다.
 	except asyncio.CancelledError:
